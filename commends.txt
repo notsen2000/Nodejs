@@ -1,1 +1,9 @@
 netstat -ano | findstr :3000
+taskkill /PID 19072 /F
+nodemon .\app.js
+
+mongodb details:
+mongodb.com/cloud/atlas
+email : sensmailbox@gmail.com
+
+

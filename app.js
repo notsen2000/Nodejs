@@ -6,9 +6,15 @@ const Blog = require('./models/blog');
 const app = express();
 
 const dburl = "mongodb+srv://netninja:Pwd6789@nodetuts.tlmakya.mongodb.net/node-tuts?appName=nodetuts";
- mongoose.connect(dburl)
-    .then((result) => app.listen(3000))
-    .catch((err) => console.log(err)); 
+mongoose.connect(dburl)
+    .then(() => {
+        app.listen(3000, () => {
+            console.log('Server running on http://localhost:3000');
+        });
+    })
+    .catch((err) => {
+        console.log('MongoDB connection error:', err);
+    });
 
 //    mongoose.connect(dburl);
 
@@ -17,9 +23,11 @@ app.set('views', 'myviews');
 // app.listen(3000);
 
 app.use(express.static('public'));
+app.use(express.urlencoded({ extended: true }));
+// app.use(express.urlencoded());
 
 //mongoose and mongo sandbox routes
-app.get('/add-blog', (req, res) => {
+/* app.get('/add-blog', (req, res) => {
     const now = new Date().toLocaleString();
     const blog = new Blog({ 
         title: `New blog 1 created at ${now}`,
@@ -53,8 +61,52 @@ app.get('/single-blog', (req, res) => {
         .catch((err) => {
             console.log(err);
         }); 
-}); 
-app.use((req, res,next) => {
+});  */
+
+app.get('/',
+    (req, res) => {
+        res.redirect('/blogs');
+    });
+
+app.get('/blogs',
+    (req, res) => {
+        Blog.find().sort({ createdAt: -1 })
+            .then((result) => {
+                res.render('index', { title: 'All Blogs', blogs: result });
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    });
+
+
+app.post('/blogs', (req, res) => {
+    //  res.send('new blog added');
+    console.log(req.body);
+
+    const blog = new Blog(req.body);
+    blog.save()
+        .then((result) => {
+            res.redirect('/blogs');
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+});
+
+app.get('/blogs/:id', (req, res) => {
+    const id = req.params.id;
+    console.log('Blog id:', id);
+    Blog.findById(id)
+        .then((result) => {
+            res.render('details', { title: 'Blog Details', blog: result });
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+});
+
+/* app.use((req, res, next) => {
     console.log('*************************************');
     console.log('new request made:');
     console.log('host:', req.hostname);
@@ -62,13 +114,13 @@ app.use((req, res,next) => {
     console.log('method:', req.method);
     console.log('*************************************');
     next();
-}); 
-app.use((req, res,next) => {
+});
+app.use((req, res, next) => {
     console.log('*************************************');
     console.log('In the Middleware');
-        console.log('*************************************');
+    console.log('*************************************');
     next();
-}); 
+}); */
 app.get('/',
     (req, res) => {
         const blogs = [
@@ -77,7 +129,7 @@ app.get('/',
             { title: 'How to defeat bowser', snippet: 'Lorem ipsum dolor sit amet consectetur' },
         ];
         //res.send('<p>Home Page</p>')
-        res.render('index', { title: 'Home' , blogs });
+        res.render('index', { title: 'Home', blogs });
     });
 
 app.get('/about',
