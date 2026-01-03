@@ -63,6 +63,8 @@ app.get('/single-blog', (req, res) => {
         }); 
 });  */
 
+
+
 app.get('/',
     (req, res) => {
         res.redirect('/blogs');
@@ -93,7 +95,12 @@ app.post('/blogs', (req, res) => {
             console.log(err);
         });
 });
-
+app.get('/blogs/create',
+    (req, res) => {
+        //res.send('<p>about Page</p>')
+        // res.sendFile('./views/about.html', { root: __dirname });
+        res.render('create', { title: 'Create A New Blog' });
+    });
 app.get('/blogs/:id', (req, res) => {
     const id = req.params.id;
     console.log('Blog id:', id);
@@ -105,6 +112,20 @@ app.get('/blogs/:id', (req, res) => {
             console.log(err);
         });
 });
+
+app.delete('/blogs/:id', (req, res) => {
+    const id = req.params.id;
+    console.log('Blog id to delete:', id);  
+    Blog.findByIdAndDelete(id)
+        .then((result) => {
+            res.json({ redirect: '/blogs' });   
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+});
+
+//  app.use(morgan('dev'));
 
 /* app.use((req, res, next) => {
     console.log('*************************************');
@@ -121,7 +142,7 @@ app.use((req, res, next) => {
     console.log('*************************************');
     next();
 }); */
-app.get('/',
+/* app.get('/',
     (req, res) => {
         const blogs = [
             { title: 'Yoshi finds eggs', snippet: 'Lorem ipsum dolor sit amet consectetur' },
@@ -130,7 +151,7 @@ app.get('/',
         ];
         //res.send('<p>Home Page</p>')
         res.render('index', { title: 'Home', blogs });
-    });
+    }); */
 
 app.get('/about',
     (req, res) => {
@@ -145,17 +166,16 @@ app.get('/about-us',
     });
 
 
-app.get('/blogs/create',
-    (req, res) => {
-        //res.send('<p>about Page</p>')
-        // res.sendFile('./views/about.html', { root: __dirname });
-        res.render('create', { title: 'Create A New Blog' });
-    });
-app.use((req, res) => {
+
+/* app.use((req, res) => {
     res.status(404).sendFile('./views/404.html', { root: __dirname });
 
     //res.sendFile ('./views/404.html', { root: __dirname });
     // res.render('404');
 
     res.status(404).render('404', { title: '404' });
-}); 
+});  */
+
+app.use((req, res) => {
+  res.status(404).render('404', { title: '404' });
+});
